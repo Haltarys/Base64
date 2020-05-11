@@ -1,8 +1,46 @@
 #include "encode.h"
 
+void encode_bytes(uint8_t *buffer, ssize_t bytes_read, char const *alphabet)
+{
+    uint8_t bytes[ENCODE_SIZE];
+    char chars[ENCODE_SIZE + 1] = {0};
+
+    bytes[0] = buffer[0] >> 2;
+    bytes[1] = ((buffer[0] & 0b11) << 4) | (buffer[1] >> 4);
+    if (bytes_read >= 2)
+        bytes[2] = ((buffer[1] & 0b1111) << 2) | (buffer[2] >> 6);
+    else
+        bytes[2] = PADDING;
+    if (bytes_read == 3)
+        bytes[3] = buffer[2] & 0b111111;
+    else
+        bytes[3] = PADDING;
+    for (int i = 0; i < ENCODE_SIZE; i++)
+        chars[i] = alphabet[bytes[i]];
+    write(1, chars, ENCODE_SIZE);
+}
+
 int encode(char const *filename)
 {
-    (void)filename;
-    printf("Feature not supported yet!\n");
-    return EXIT_FAILURE;
+    int fd = open(filename, O_RDONLY);
+
+    if (fd == -1)
+    {
+        printf("Error while trying to open %s.\n", filename);
+        printf("Check that the file exists and has correct access rights..\n");
+        return EXIT_FAILURE;
+    }
+
+    uint8_t buffer[READ_SIZE] = {0};
+    ssize_t bytes_read;
+    char const *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+
+    while ((bytes_read = read(fd, buffer, READ_SIZE)) != 0)
+    {
+        encode_bytes(buffer, bytes_read, alphabet);
+        memset(buffer, 0, READ_SIZE);
+    }
+
+    close(fd);
+    return EXIT_SUCCESS;
 }
