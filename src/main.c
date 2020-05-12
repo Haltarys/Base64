@@ -2,25 +2,37 @@
 
 static void display_help(char const *binname)
 {
-    printf("Usage: %s FILE [OPTION]\n\n", binname);
-    printf("FILE: file to encode or decode in base 64\n");
-    printf("OPTION: encode or decode the file (default is encode)\n");
-    printf("Add the -d or --decode flag to decode the file.\n");
+    printf("Usage: %s [OPTIONS] FILE\n\n", binname);
+    printf("FILE: file to encode or decode in base 64\nOPTION:\n");
+    printf("    -d, --decode    decode the file (default is encode mode)\n");
+    printf("    -r, --rfc4648   use RFC 4648 instead of RFC 2045\n");
+    printf("                    '+' and '/' respectively become '-' and '_'\n");
 }
 
-static int get_mode(char const *arg)
+static int parse_args(int argc, char const *argv[], args_t *args)
 {
-    if (!arg)
-        return ENCODE;
-    if (!strcmp("-d", arg) || !strcmp("--decode", arg))
-        return DECODE;
-    printf("Unrecognized option: %s. Ignored (encoding mode).\n", arg);
-    return ENCODE;
+    for (int i = 1; i < argc; i++)
+    {
+        if (!strcmp("-d", argv[i]) || !strcmp("--decode", argv[i]))
+            args->mode = DECODE;
+        else if (!strcmp("-r", argv[i]) || !strcmp("--rfc4648", argv[i]))
+            args->rfc = RFC_4648;
+        else
+        {
+            if (args->filename != NULL)
+            {
+                printf("Invalid argument: %s\n", argv[i]);
+                return -1;
+            }
+            args->filename = argv[i];
+        }
+    }
+    return 0;
 }
 
 int main(int argc, char const *argv[])
 {
-    if (argc == 1 || argc > 3)
+    if (argc == 1)
     {
         display_help(argv[0]);
         return EXIT_FAILURE;
@@ -34,5 +46,10 @@ int main(int argc, char const *argv[])
             return EXIT_SUCCESS;
         }
     }
-    return base64(argv[1], get_mode(argv[2]), RFC_2045);
+
+    args_t args = {.filename = NULL, .mode = ENCODE, .rfc = RFC_2045};
+
+    if (parse_args(argc, argv, &args) < 0)
+        return EXIT_FAILURE;
+    return base64(args.filename, args.mode, args.rfc);
 }
