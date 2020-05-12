@@ -29,7 +29,7 @@ int encode(char const *filename, int rfc)
     if (fd == -1)
     {
         printf("Error while trying to open %s.\n", filename);
-        printf("Check that the file exists and has correct access rights..\n");
+        printf("Check that the file exists and has correct access rights.\n");
         return EXIT_FAILURE;
     }
 
