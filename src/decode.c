@@ -1,11 +1,13 @@
 #include "decode.h"
 
-static int is_char_valid(char c)
+static int is_char_valid(char c, int rfc)
 {
-    return isalnum(c) || c == '+' || c == '/' || c == '=';
+    if (rfc == RFC_2045)
+        return isalnum(c) || c == '+' || c == '/' || c == PADDING;
+    return isalnum(c) || c == '-' || c == '_' || c == PADDING;
 }
 
-static uint8_t decode_char(char c)
+static uint8_t decode_char(char c, int rfc)
 {
     if (isupper(c))
         return c - 'A';
@@ -13,21 +15,21 @@ static uint8_t decode_char(char c)
         return c - 'a' + 0b011010;
     if (isdigit(c))
         return c - '0' + 0b110100;
-    if (c == '+')
+    if ((rfc == RFC_2045 && c == '+') || (rfc == RFC_4648 && c == '-'))
         return 0b111110;
-    if (c == '/')
+    if ((rfc == RFC_2045 && c == '/') || (rfc == RFC_4648 && c == '_'))
         return 0b111111;
     return 0;
 }
 
-static void decode_chars(char const *buffer)
+static void decode_chars(char const *buffer, int rfc)
 {
     uint8_t decoded[READ_SIZE];
     uint8_t bytes[DECODE_SIZE];
     size_t write_size = 3;
 
     for (int i = 0; i < READ_SIZE; i++)
-        decoded[i] = decode_char(buffer[i]);
+        decoded[i] = decode_char(buffer[i], rfc);
 
     bytes[0] = (decoded[0] << 2) | ((decoded[1] & 0b110000) >> 4);
     if (buffer[2] == PADDING)
@@ -44,7 +46,7 @@ static void decode_chars(char const *buffer)
     write(1, bytes, write_size * sizeof(uint8_t));
 }
 
-int decode(char const *filename)
+int decode(char const *filename, int rfc)
 {
     int fd = open(filename, O_RDONLY);
 
@@ -67,13 +69,13 @@ int decode(char const *filename)
         }
         for (int i = 0; i < READ_SIZE; i++)
         {
-            if (!is_char_valid(buffer[i]))
+            if (!is_char_valid(buffer[i], rfc))
             {
                 printf("Error: unrecognized character %c\n", buffer[i]);
                 return EXIT_FAILURE;
             }
         }
-        decode_chars(buffer);
+        decode_chars(buffer, rfc);
         memset(buffer, 0, READ_SIZE);
     }
 

@@ -11,6 +11,8 @@
 #include <unistd.h>
 #include <string.h>
 
+#include "rfc.h"
+
 #define READ_SIZE 3
 #define ENCODE_SIZE 4
 #define PADDING 64

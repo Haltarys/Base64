@@ -12,6 +12,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "rfc.h"
+
 #define READ_SIZE 4
 #define DECODE_SIZE 3
 #define PADDING '='

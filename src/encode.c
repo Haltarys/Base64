@@ -22,7 +22,7 @@ static void encode_bytes(uint8_t const *buffer, ssize_t bytes_read, char const *
     write(1, chars, ENCODE_SIZE * sizeof(char));
 }
 
-int encode(char const *filename)
+int encode(char const *filename, int rfc)
 {
     int fd = open(filename, O_RDONLY);
 
@@ -35,8 +35,10 @@ int encode(char const *filename)
 
     uint8_t buffer[READ_SIZE] = {0};
     ssize_t bytes_read;
-    char const *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
+    if (rfc == RFC_4648)
+        alphabet[62] = '-', alphabet[63] = '_';
     while ((bytes_read = read(fd, buffer, READ_SIZE)) > 0)
     {
         encode_bytes(buffer, bytes_read, alphabet);
