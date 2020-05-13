@@ -19,14 +19,14 @@ static void encode_bytes(uint8_t const *buffer, ssize_t bytes_read, char const *
     for (int i = 0; i < ENCODE_SIZE; i++)
         chars[i] = alphabet[bytes[i]];
 
-    write(1, chars, ENCODE_SIZE * sizeof(char));
+    fwrite(chars, sizeof(char), ENCODE_SIZE, stdout);
 }
 
 int encode(char const *filename, int rfc)
 {
-    int fd = open(filename, O_RDONLY);
+    FILE *file = fopen(filename, "r");
 
-    if (fd == -1)
+    if (!file)
     {
         printf("Error while trying to open %s.\n", filename);
         printf("Check that the file exists and has correct access rights.\n");
@@ -39,12 +39,12 @@ int encode(char const *filename, int rfc)
 
     if (rfc == RFC_4648)
         alphabet[62] = '-', alphabet[63] = '_';
-    while ((bytes_read = read(fd, buffer, READ_SIZE)) > 0)
+    while ((bytes_read = fread(buffer, sizeof(char), READ_SIZE, file)) > 0)
     {
         encode_bytes(buffer, bytes_read, alphabet);
         memset(buffer, 0, READ_SIZE);
     }
 
-    close(fd);
+    fclose(file);
     return EXIT_SUCCESS;
 }

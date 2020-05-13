@@ -43,14 +43,14 @@ static void decode_chars(char const *buffer, int rfc)
             bytes[2] = (decoded[2] << 6) | decoded[3];
     }
 
-    write(1, bytes, write_size * sizeof(uint8_t));
+    fwrite(bytes, sizeof(uint8_t), write_size, stdout);
 }
 
 int decode(char const *filename, int rfc)
 {
-    int fd = open(filename, O_RDONLY);
+    FILE *file = fopen(filename, "r");
 
-    if (fd == -1)
+    if (!file)
     {
         printf("Error while trying to open %s.\n", filename);
         printf("Check that the file exists and has correct access rights.\n");
@@ -58,9 +58,9 @@ int decode(char const *filename, int rfc)
     }
 
     char buffer[READ_SIZE] = {0};
-    ssize_t bytes_read;
+    size_t bytes_read;
 
-    while ((bytes_read = read(fd, buffer, READ_SIZE)) > 0)
+    while ((bytes_read = fread(buffer, sizeof(char), READ_SIZE, file)) > 0)
     {
         if (bytes_read != READ_SIZE)
         {
@@ -79,6 +79,6 @@ int decode(char const *filename, int rfc)
         memset(buffer, 0, READ_SIZE);
     }
 
-    close(fd);
+    fclose(file);
     return EXIT_SUCCESS;
 }
