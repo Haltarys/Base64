@@ -10,6 +10,6 @@
 #include "rfc.h"
 #include "args.h"
 
-int base64(char const *filename, int mode, int rfc);
+int base64(const args_t *args);
 
 #endif /* !MAIN_H_ */

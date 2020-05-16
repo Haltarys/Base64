@@ -47,9 +47,9 @@ int main(int argc, char const *argv[])
         }
     }
 
-    args_t args = {.filename = NULL, .mode = ENCODE, .rfc = RFC_2045};
+    args_t args = {NULL, ENCODE, RFC_2045, 76};
 
     if (parse_args(argc, argv, &args) < 0)
         return EXIT_FAILURE;
-    return base64(args.filename, args.mode, args.rfc);
+    return base64(&args);
 }

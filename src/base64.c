@@ -1,9 +1,9 @@
 #include "base64.h"
 
-int base64(char const *filename, int mode, int rfc)
+int base64(const args_t *args)
 {
-    if (mode == ENCODE)
-        return encode(filename, rfc);
+    if (args->mode == ENCODE)
+        return encode(args->filename, args->rfc, args->wrap);
     else
-        return decode(filename, rfc);
+        return decode(args->filename, args->rfc);
 }
