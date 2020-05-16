@@ -67,7 +67,7 @@ int encode(char const *filename, int rfc, int wrap)
 
     uint8_t buffer[READ_SIZE] = {0};
     ssize_t bytes_read;
-    char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    char alphabet[] = ALPHABET;
     int newline = 0;
 
     if (rfc == RFC_4648)
