@@ -10,6 +10,7 @@
 #include "rfc.h"
 #include "args.h"
 
+int parse_args(args_t *args, int argc, char const *argv[]);
 int base64(const args_t *args);
 
 #endif /* !MAIN_H_ */

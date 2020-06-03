@@ -3,6 +3,7 @@ NAME	= base64
 RM	= rm -rf
 
 SRC	= src/main.c	\
+	src/parse.c	\
 	src/base64.c	\
 	src/encode.c	\
 	src/decode.c
