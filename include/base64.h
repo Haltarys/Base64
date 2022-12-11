@@ -3,7 +3,7 @@
 
 #include "mode.h"
 
-int encode(char const *filename);
-int decode(char const *filename);
+int encode(char const *filename, int rfc);
+int decode(char const *filename, int rfc);
 
 #endif /* !BASE64_H_ */

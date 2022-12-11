@@ -34,5 +34,5 @@ int main(int argc, char const *argv[])
             return EXIT_SUCCESS;
         }
     }
-    return base64(argv[1], get_mode(argv[2]));
+    return base64(argv[1], get_mode(argv[2]), RFC_2045);
 }
