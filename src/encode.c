@@ -1,9 +1,9 @@
 #include "encode.h"
 
-static int counter = 0;
-
 static int write_chars(char const *chars, int wrap)
 {
+    static int counter = 0;
+
     switch (wrap)
     {
     case 0:
