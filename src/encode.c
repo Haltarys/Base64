@@ -1,23 +1,25 @@
 #include "encode.h"
 
-void encode_bytes(uint8_t *buffer, ssize_t bytes_read, char const *alphabet)
+static void encode_bytes(uint8_t const *buffer, ssize_t bytes_read, char const *alphabet)
 {
     uint8_t bytes[ENCODE_SIZE];
-    char chars[ENCODE_SIZE + 1] = {0};
+    char chars[ENCODE_SIZE] = {0};
 
     bytes[0] = buffer[0] >> 2;
-    bytes[1] = ((buffer[0] & 0b11) << 4) | (buffer[1] >> 4);
+    bytes[1] = ((buffer[0] & 0b000011) << 4) | (buffer[1] >> 4);
     if (bytes_read >= 2)
-        bytes[2] = ((buffer[1] & 0b1111) << 2) | (buffer[2] >> 6);
+        bytes[2] = ((buffer[1] & 0b001111) << 2) | (buffer[2] >> 6);
     else
         bytes[2] = PADDING;
     if (bytes_read == 3)
         bytes[3] = buffer[2] & 0b111111;
     else
         bytes[3] = PADDING;
+
     for (int i = 0; i < ENCODE_SIZE; i++)
         chars[i] = alphabet[bytes[i]];
-    write(1, chars, ENCODE_SIZE);
+
+    write(1, chars, ENCODE_SIZE * sizeof(char));
 }
 
 int encode(char const *filename)
@@ -35,7 +37,7 @@ int encode(char const *filename)
     ssize_t bytes_read;
     char const *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
-    while ((bytes_read = read(fd, buffer, READ_SIZE)) != 0)
+    while ((bytes_read = read(fd, buffer, READ_SIZE)) > 0)
     {
         encode_bytes(buffer, bytes_read, alphabet);
         memset(buffer, 0, READ_SIZE);
