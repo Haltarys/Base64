@@ -8,6 +8,7 @@
 
 #include "mode.h"
 #include "rfc.h"
+#include "args.h"
 
 int base64(char const *filename, int mode, int rfc);
 
